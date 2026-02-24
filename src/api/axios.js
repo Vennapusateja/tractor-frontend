@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+const BASE_URL = process.env.REACT_APP_API_URL || 'https://tractor-backend-eey5.onrender.com/api';
+
 const API = axios.create({
-  baseURL: 'https://tractorbazaar-api.onrender.com/api',
+  baseURL: BASE_URL,
 });
 
 API.interceptors.request.use((config) => {

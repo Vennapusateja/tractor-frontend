@@ -20,7 +20,14 @@ export default function TractorsPage() {
       const res = await API.get('/tractors/', {
         params: { ...params, for_rent: true }
       });
-      setTractors(res.data.results || res.data);
+      const data = res.data;
+      if (Array.isArray(data)) {
+          setTractors(data);
+      } else if (data.results && Array.isArray(data.results)) {
+          setTractors(data.results);
+      } else {
+          setTractors([]);
+      }
     } catch (err) {
       console.error(err);
     } finally {

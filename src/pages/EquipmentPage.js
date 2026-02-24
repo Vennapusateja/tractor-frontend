@@ -31,7 +31,14 @@ export default function EquipmentPage() {
     setLoading(true);
     try {
       const res = await API.get('/equipment/', { params });
-      setEquipment(res.data.results || res.data);
+      const data = res.data;
+if (Array.isArray(data)) {
+  setEquipment(data);
+} else if (data.results && Array.isArray(data.results)) {
+  setEquipment(data.results);
+} else {
+  setEquipment([]);
+}
     } catch {
       setError('Failed to load equipment.');
     } finally {

@@ -24,8 +24,22 @@ export default function DashboardPage() {
         API.get('/tractors/mine/'),
         API.get('/bookings/'),
       ]);
-      setTractors(tractorRes.data.results || tractorRes.data);
-      setBookings(bookingRes.data.results || bookingRes.data);
+      const data = tractorRes.data;
+if (Array.isArray(data)) {
+  setTractors(data);
+} else if (data.results) {
+  setTractors(data.results);
+} else {
+  setTractors([]);
+}
+      const bdata = bookingRes.data;
+if (Array.isArray(bdata)) {
+  setBookings(bdata);
+} else if (bdata.results) {
+  setBookings(bdata.results);
+} else {
+  setBookings([]);
+}
     } catch (err) {
       setError('Failed to load data.');
     } finally {

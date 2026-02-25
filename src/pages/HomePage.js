@@ -267,7 +267,7 @@ const styles = {
     ctaBtnPrimary: { backgroundColor: 'white', color: '#15803d', padding: '16px 40px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '16px' },
     ctaBtnSecondary: { backgroundColor: 'transparent', color: 'white', padding: '16px 40px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '16px', border: '2px solid white' },
     footer: { backgroundColor: '#111827', padding: '60px 80px 0' },
-    footerContent: { display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '40px', marginBottom: '40px' },
+    footerContent: { display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: '40px', marginBottom: '40px' },
     footerBrand: {},
     footerLogo: { color: 'white', fontSize: '24px', fontWeight: 'bold', margin: '0 0 12px' },
     footerTagline: { color: '#9ca3af', fontSize: '14px', lineHeight: '1.6' },

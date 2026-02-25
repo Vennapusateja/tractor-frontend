@@ -8,8 +8,6 @@ export default function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const [rentalOpen, setRentalOpen] = useState(false);
-  const [buyingOpen, setBuyingOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleLogout = async () => {
@@ -19,8 +17,6 @@ export default function Navbar() {
   };
 
   const closeAll = () => {
-    setRentalOpen(false);
-    setBuyingOpen(false);
     setMobileOpen(false);
   };
 

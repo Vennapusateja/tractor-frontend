@@ -1,16 +1,28 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
+import useSlowBackend from '../hooks/useSlowBackend';
+import SlowBackendBanner from '../components/SlowBackendBanner';
+
+const MEDIA_BASE = (process.env.REACT_APP_API_URL || 'https://tractor-backend-eey5.onrender.com/api').replace('/api', '');
+const TRACTOR_PLACEHOLDERS = [
+  '/images/tractor1.png',
+  '/images/tractor2.png',
+  '/images/tractor3.png',
+];
+const getPlaceholder = (id) => TRACTOR_PLACEHOLDERS[(id || 0) % TRACTOR_PLACEHOLDERS.length];
 
 export default function TractorDetail() {
-  const { id }     = useParams();
-  const { user }   = useAuth();
-  const navigate   = useNavigate();
-  const [tractor,  setTractor]  = useState(null);
-  const [loading,  setLoading]  = useState(true);
-  const [error,    setError]    = useState('');
+  const { id } = useParams();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [tractor, setTractor] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [activeImg, setActiveImg] = useState(0);
+  const slowWarning = useSlowBackend(loading);
 
   useEffect(() => {
     fetchTractor();
@@ -30,12 +42,15 @@ export default function TractorDetail() {
   };
 
   if (loading) return (
-    <div style={styles.center}>Loading tractor details...</div>
+    <div style={styles.center}>
+      <SlowBackendBanner show={slowWarning} />
+      Loading tractor details...
+    </div>
   );
 
   if (error) return (
     <div style={styles.center}>
-      <div style={{fontSize:'48px'}}>😕</div>
+      <div style={{ fontSize: '48px' }}>😕</div>
       <h3>{error}</h3>
       <Link to="/tractors" style={styles.backBtn}>Back to Tractors</Link>
     </div>
@@ -56,12 +71,16 @@ export default function TractorDetail() {
           <div style={styles.mainImageBox}>
             {tractor.images && tractor.images.length > 0 ? (
               <img
-                src={`http://127.0.0.1:8000${tractor.images[activeImg].image}`}
+                src={`${MEDIA_BASE}${tractor.images[activeImg].image}`}
                 alt={tractor.brand}
                 style={styles.mainImage}
               />
             ) : (
-              <div style={styles.noImage}>🚜</div>
+              <img
+                src={getPlaceholder(tractor.id)}
+                alt={tractor.brand || 'Tractor'}
+                style={styles.mainImage}
+              />
             )}
             <span style={{
               ...styles.badge,
@@ -76,7 +95,7 @@ export default function TractorDetail() {
               {tractor.images.map((img, index) => (
                 <img
                   key={img.id}
-                  src={`http://127.0.0.1:8000${img.image}`}
+                  src={`${MEDIA_BASE}${img.image}`}
                   alt={`view ${index}`}
                   style={{
                     ...styles.thumbnail,
@@ -146,16 +165,16 @@ export default function TractorDetail() {
                 </div>
               )}
               {tractor.sell_price && (
-                <div style={{...styles.priceCard, backgroundColor:'#fef3c7'}}>
-                  <span style={{...styles.priceAmount, color:'#d97706'}}>
+                <div style={{ ...styles.priceCard, backgroundColor: '#fef3c7' }}>
+                  <span style={{ ...styles.priceAmount, color: '#d97706' }}>
                     ₹{tractor.sell_price}
                   </span>
                   <span style={styles.priceUnit}>selling price</span>
                 </div>
               )}
               {tractor.driver_available && (
-                <div style={{...styles.priceCard, backgroundColor:'#ede9fe'}}>
-                  <span style={{...styles.priceAmount, color:'#7c3aed'}}>
+                <div style={{ ...styles.priceCard, backgroundColor: '#ede9fe' }}>
+                  <span style={{ ...styles.priceAmount, color: '#7c3aed' }}>
                     ₹{tractor.driver_charges}
                   </span>
                   <span style={styles.priceUnit}>driver charges</span>
@@ -222,48 +241,48 @@ export default function TractorDetail() {
 }
 
 const styles = {
-  container:     { maxWidth:'1100px', margin:'0 auto', padding:'24px 16px' },
-  center:        { textAlign:'center', padding:'80px', fontSize:'18px', color:'#6b7280' },
-  backLink:      { color:'#15803d', textDecoration:'none', fontWeight:'600', fontSize:'15px' },
-  backBtn:       { display:'inline-block', marginTop:'16px', backgroundColor:'#15803d', color:'white', padding:'10px 20px', borderRadius:'8px', textDecoration:'none' },
-  mainGrid:      { display:'grid', gridTemplateColumns:'1fr 1fr', gap:'32px', marginTop:'20px' },
-  imageSection:  {},
-  mainImageBox:  { position:'relative', height:'320px', backgroundColor:'#f3f4f6', borderRadius:'12px', overflow:'hidden' },
-  mainImage:     { width:'100%', height:'100%', objectFit:'cover' },
-  noImage:       { width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'80px' },
-  badge:         { position:'absolute', top:'12px', right:'12px', color:'white', padding:'6px 14px', borderRadius:'20px', fontSize:'13px', fontWeight:'600', textTransform:'capitalize' },
-  thumbnails:    { display:'flex', gap:'8px', marginTop:'12px', flexWrap:'wrap' },
-  thumbnail:     { width:'72px', height:'72px', objectFit:'cover', borderRadius:'8px', cursor:'pointer' },
+  container: { maxWidth: '1100px', margin: '0 auto', padding: '24px 16px' },
+  center: { textAlign: 'center', padding: '80px', fontSize: '18px', color: '#6b7280' },
+  backLink: { color: '#15803d', textDecoration: 'none', fontWeight: '600', fontSize: '15px' },
+  backBtn: { display: 'inline-block', marginTop: '16px', backgroundColor: '#15803d', color: 'white', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none' },
+  mainGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', marginTop: '20px' },
+  imageSection: {},
+  mainImageBox: { position: 'relative', height: '320px', backgroundColor: '#f3f4f6', borderRadius: '12px', overflow: 'hidden' },
+  mainImage: { width: '100%', height: '100%', objectFit: 'cover' },
+  noImage: { width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '80px' },
+  badge: { position: 'absolute', top: '12px', right: '12px', color: 'white', padding: '6px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: '600', textTransform: 'capitalize' },
+  thumbnails: { display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' },
+  thumbnail: { width: '72px', height: '72px', objectFit: 'cover', borderRadius: '8px', cursor: 'pointer' },
   detailSection: {},
-  title:         { fontSize:'28px', fontWeight:'bold', color:'#111827', margin:'0 0 12px 0' },
-  ownerBox:      { display:'flex', alignItems:'center', gap:'8px', marginBottom:'20px', padding:'12px', backgroundColor:'#f9fafb', borderRadius:'8px' },
-  ownerLabel:    { color:'#6b7280', fontSize:'14px' },
-  ownerName:     { fontWeight:'600', color:'#111827' },
-  verified:      { color:'#15803d', fontSize:'13px' },
-  specsGrid:     { display:'grid', gridTemplateColumns:'1fr 1fr', gap:'12px', marginBottom:'16px' },
-  specItem:      { backgroundColor:'#f9fafb', padding:'12px', borderRadius:'8px', display:'flex', flexDirection:'column', gap:'4px' },
-  specLabel:     { fontSize:'12px', color:'#6b7280', textTransform:'uppercase' },
-  specValue:     { fontSize:'15px', fontWeight:'600', color:'#111827' },
-  locationBox:   { backgroundColor:'#f0fdf4', padding:'12px 16px', borderRadius:'8px', color:'#15803d', fontSize:'14px', marginBottom:'16px' },
-  pricingBox:    { marginBottom:'16px' },
-  pricingTitle:  { fontSize:'18px', fontWeight:'bold', color:'#111827', marginBottom:'12px' },
-  priceGrid:     { display:'flex', gap:'12px', flexWrap:'wrap' },
-  priceCard:     { backgroundColor:'#dcfce7', padding:'12px 16px', borderRadius:'10px', display:'flex', flexDirection:'column', alignItems:'center', minWidth:'100px' },
-  priceAmount:   { fontSize:'20px', fontWeight:'bold', color:'#15803d' },
-  priceUnit:     { fontSize:'12px', color:'#6b7280', marginTop:'2px' },
-  descBox:       { marginBottom:'16px' },
-  descTitle:     { fontSize:'16px', fontWeight:'bold', color:'#111827', marginBottom:'8px' },
-  descText:      { color:'#4b5563', lineHeight:'1.6' },
-  actions:       { display:'flex', gap:'12px', flexWrap:'wrap' },
-  bookBtn:       { flex:1, backgroundColor:'#15803d', color:'white', padding:'14px', borderRadius:'10px', fontSize:'16px', fontWeight:'600', border:'none', cursor:'pointer', textAlign:'center', textDecoration:'none', display:'block' },
-  unavailableBtn:{ flex:1, backgroundColor:'#d1d5db', color:'#6b7280', padding:'14px', borderRadius:'10px', fontSize:'16px', fontWeight:'600', border:'none', cursor:'not-allowed' },
-  callBtn:       { flex:1, backgroundColor:'#2563eb', color:'white', padding:'14px', borderRadius:'10px', fontSize:'16px', fontWeight:'600', textAlign:'center', textDecoration:'none', display:'block' },
-  reviewsSection:{ marginTop:'40px', borderTop:'1px solid #e5e7eb', paddingTop:'24px' },
-  reviewsTitle:  { fontSize:'22px', fontWeight:'bold', color:'#111827', marginBottom:'16px' },
-  reviewCard:    { backgroundColor:'white', padding:'16px', borderRadius:'10px', boxShadow:'0 1px 4px rgba(0,0,0,0.08)', marginBottom:'12px' },
-  reviewHeader:  { display:'flex', justifyContent:'space-between', marginBottom:'8px' },
-  reviewUser:    { fontWeight:'600', color:'#111827' },
-  reviewRating:  { fontSize:'14px' },
-  reviewComment: { color:'#4b5563', margin:'0' },
-  noReviews:     { color:'#6b7280' },
+  title: { fontSize: '28px', fontWeight: 'bold', color: '#111827', margin: '0 0 12px 0' },
+  ownerBox: { display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px', padding: '12px', backgroundColor: '#f9fafb', borderRadius: '8px' },
+  ownerLabel: { color: '#6b7280', fontSize: '14px' },
+  ownerName: { fontWeight: '600', color: '#111827' },
+  verified: { color: '#15803d', fontSize: '13px' },
+  specsGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' },
+  specItem: { backgroundColor: '#f9fafb', padding: '12px', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '4px' },
+  specLabel: { fontSize: '12px', color: '#6b7280', textTransform: 'uppercase' },
+  specValue: { fontSize: '15px', fontWeight: '600', color: '#111827' },
+  locationBox: { backgroundColor: '#f0fdf4', padding: '12px 16px', borderRadius: '8px', color: '#15803d', fontSize: '14px', marginBottom: '16px' },
+  pricingBox: { marginBottom: '16px' },
+  pricingTitle: { fontSize: '18px', fontWeight: 'bold', color: '#111827', marginBottom: '12px' },
+  priceGrid: { display: 'flex', gap: '12px', flexWrap: 'wrap' },
+  priceCard: { backgroundColor: '#dcfce7', padding: '12px 16px', borderRadius: '10px', display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '100px' },
+  priceAmount: { fontSize: '20px', fontWeight: 'bold', color: '#15803d' },
+  priceUnit: { fontSize: '12px', color: '#6b7280', marginTop: '2px' },
+  descBox: { marginBottom: '16px' },
+  descTitle: { fontSize: '16px', fontWeight: 'bold', color: '#111827', marginBottom: '8px' },
+  descText: { color: '#4b5563', lineHeight: '1.6' },
+  actions: { display: 'flex', gap: '12px', flexWrap: 'wrap' },
+  bookBtn: { flex: 1, backgroundColor: '#15803d', color: 'white', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: '600', border: 'none', cursor: 'pointer', textAlign: 'center', textDecoration: 'none', display: 'block' },
+  unavailableBtn: { flex: 1, backgroundColor: '#d1d5db', color: '#6b7280', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: '600', border: 'none', cursor: 'not-allowed' },
+  callBtn: { flex: 1, backgroundColor: '#2563eb', color: 'white', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: '600', textAlign: 'center', textDecoration: 'none', display: 'block' },
+  reviewsSection: { marginTop: '40px', borderTop: '1px solid #e5e7eb', paddingTop: '24px' },
+  reviewsTitle: { fontSize: '22px', fontWeight: 'bold', color: '#111827', marginBottom: '16px' },
+  reviewCard: { backgroundColor: 'white', padding: '16px', borderRadius: '10px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', marginBottom: '12px' },
+  reviewHeader: { display: 'flex', justifyContent: 'space-between', marginBottom: '8px' },
+  reviewUser: { fontWeight: '600', color: '#111827' },
+  reviewRating: { fontSize: '14px' },
+  reviewComment: { color: '#4b5563', margin: '0' },
+  noReviews: { color: '#6b7280' },
 };

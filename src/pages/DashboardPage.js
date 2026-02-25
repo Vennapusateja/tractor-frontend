@@ -1,16 +1,28 @@
+
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
+import useSlowBackend from '../hooks/useSlowBackend';
+import SlowBackendBanner from '../components/SlowBackendBanner';
+
+const MEDIA_BASE = (process.env.REACT_APP_API_URL || 'https://tractor-backend-eey5.onrender.com/api').replace('/api', '');
+const TRACTOR_PLACEHOLDERS = [
+  '/images/tractor1.png',
+  '/images/tractor2.png',
+  '/images/tractor3.png',
+];
+const getPlaceholder = (id) => TRACTOR_PLACEHOLDERS[(id || 0) % TRACTOR_PLACEHOLDERS.length];
 
 export default function DashboardPage() {
   const { user } = useAuth();
 
-  const [tractors,  setTractors]  = useState([]);
-  const [bookings,  setBookings]  = useState([]);
-  const [loading,   setLoading]   = useState(true);
+  const [tractors, setTractors] = useState([]);
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('tractors');
-  const [error,     setError]     = useState('');
+  const [error, setError] = useState('');
+  const slowWarning = useSlowBackend(loading);
 
   useEffect(() => {
     fetchData();
@@ -25,21 +37,21 @@ export default function DashboardPage() {
         API.get('/bookings/'),
       ]);
       const data = tractorRes.data;
-if (Array.isArray(data)) {
-  setTractors(data);
-} else if (data.results) {
-  setTractors(data.results);
-} else {
-  setTractors([]);
-}
+      if (Array.isArray(data)) {
+        setTractors(data);
+      } else if (data.results) {
+        setTractors(data.results);
+      } else {
+        setTractors([]);
+      }
       const bdata = bookingRes.data;
-if (Array.isArray(bdata)) {
-  setBookings(bdata);
-} else if (bdata.results) {
-  setBookings(bdata.results);
-} else {
-  setBookings([]);
-}
+      if (Array.isArray(bdata)) {
+        setBookings(bdata);
+      } else if (bdata.results) {
+        setBookings(bdata.results);
+      } else {
+        setBookings([]);
+      }
     } catch (err) {
       setError('Failed to load data.');
     } finally {
@@ -67,19 +79,22 @@ if (Array.isArray(bdata)) {
   };
 
   const statusColor = {
-    pending:   { bg:'#fef3c7', color:'#d97706' },
-    confirmed: { bg:'#dbeafe', color:'#1d4ed8' },
-    active:    { bg:'#dcfce7', color:'#15803d' },
-    completed: { bg:'#f3f4f6', color:'#374151' },
-    cancelled: { bg:'#fee2e2', color:'#dc2626' },
+    pending: { bg: '#fef3c7', color: '#d97706' },
+    confirmed: { bg: '#dbeafe', color: '#1d4ed8' },
+    active: { bg: '#dcfce7', color: '#15803d' },
+    completed: { bg: '#f3f4f6', color: '#374151' },
+    cancelled: { bg: '#fee2e2', color: '#dc2626' },
   };
 
-  const pendingBookings  = bookings.filter(b => b.status === 'pending');
-  const activeBookings   = bookings.filter(b => b.status === 'active' || b.status === 'confirmed');
-  const pastBookings     = bookings.filter(b => b.status === 'completed' || b.status === 'cancelled');
+  const pendingBookings = bookings.filter(b => b.status === 'pending');
+  const activeBookings = bookings.filter(b => b.status === 'active' || b.status === 'confirmed');
+  const pastBookings = bookings.filter(b => b.status === 'completed' || b.status === 'cancelled');
 
   if (loading) return (
-    <div style={styles.center}>Loading dashboard...</div>
+    <div style={styles.center}>
+      <SlowBackendBanner show={slowWarning} />
+      Loading dashboard...
+    </div>
   );
 
   return (
@@ -95,15 +110,15 @@ if (Array.isArray(bdata)) {
           <span style={styles.statLabel}>My Tractors</span>
         </div>
         <div style={styles.statBox}>
-          <span style={{...styles.statNumber, color:'#d97706'}}>{pendingBookings.length}</span>
+          <span style={{ ...styles.statNumber, color: '#d97706' }}>{pendingBookings.length}</span>
           <span style={styles.statLabel}>Pending Requests</span>
         </div>
         <div style={styles.statBox}>
-          <span style={{...styles.statNumber, color:'#1d4ed8'}}>{activeBookings.length}</span>
+          <span style={{ ...styles.statNumber, color: '#1d4ed8' }}>{activeBookings.length}</span>
           <span style={styles.statLabel}>Active Bookings</span>
         </div>
         <div style={styles.statBox}>
-          <span style={{...styles.statNumber, color:'#6b7280'}}>{pastBookings.length}</span>
+          <span style={{ ...styles.statNumber, color: '#6b7280' }}>{pastBookings.length}</span>
           <span style={styles.statLabel}>Completed</span>
         </div>
       </div>
@@ -165,7 +180,7 @@ if (Array.isArray(bdata)) {
 
             {tractors.length === 0 ? (
               <div style={styles.empty}>
-                <div style={{fontSize:'48px'}}>🚜</div>
+                <img src="/images/tractor1.png" alt="No tractors" style={{ width: '140px', borderRadius: '10px', marginBottom: '12px', opacity: 0.75 }} />
                 <h3>No tractors listed yet</h3>
                 <p>Add your first tractor to start getting bookings</p>
                 <Link to="/add-tractor" style={styles.addBtnLarge}>
@@ -180,12 +195,16 @@ if (Array.isArray(bdata)) {
                     <div style={styles.tractorImageBox}>
                       {tractor.images && tractor.images.length > 0 ? (
                         <img
-                          src={`http://127.0.0.1:8000${tractor.images[0].image}`}
+                          src={`${MEDIA_BASE}${tractor.images[0].image}`}
                           alt={tractor.brand}
                           style={styles.tractorImage}
                         />
                       ) : (
-                        <div style={styles.noImage}>🚜</div>
+                        <img
+                          src={getPlaceholder(tractor.id)}
+                          alt={tractor.brand || 'Tractor'}
+                          style={styles.tractorImage}
+                        />
                       )}
                       <span style={{
                         ...styles.statusBadge,
@@ -238,7 +257,7 @@ if (Array.isArray(bdata)) {
             <h2 style={styles.tabTitle}>Pending Booking Requests</h2>
             {pendingBookings.length === 0 ? (
               <div style={styles.empty}>
-                <div style={{fontSize:'48px'}}>📋</div>
+                <div style={{ fontSize: '48px' }}>📋</div>
                 <h3>No pending requests</h3>
               </div>
             ) : (
@@ -283,7 +302,7 @@ if (Array.isArray(bdata)) {
                     </div>
                     <div style={styles.bookingDetail}>
                       <span style={styles.detailLabel}>Total</span>
-                      <span style={{...styles.detailValue, color:'#15803d', fontWeight:'700'}}>
+                      <span style={{ ...styles.detailValue, color: '#15803d', fontWeight: '700' }}>
                         ₹{booking.total_price}
                       </span>
                     </div>
@@ -321,7 +340,7 @@ if (Array.isArray(bdata)) {
             <h2 style={styles.tabTitle}>Active Bookings</h2>
             {activeBookings.length === 0 ? (
               <div style={styles.empty}>
-                <div style={{fontSize:'48px'}}>✅</div>
+                <div style={{ fontSize: '48px' }}>✅</div>
                 <h3>No active bookings</h3>
               </div>
             ) : (
@@ -354,7 +373,7 @@ if (Array.isArray(bdata)) {
                     </div>
                     <div style={styles.bookingDetail}>
                       <span style={styles.detailLabel}>Total</span>
-                      <span style={{...styles.detailValue, color:'#15803d', fontWeight:'700'}}>
+                      <span style={{ ...styles.detailValue, color: '#15803d', fontWeight: '700' }}>
                         ₹{booking.total_price}
                       </span>
                     </div>
@@ -380,12 +399,12 @@ if (Array.isArray(bdata)) {
             <h2 style={styles.tabTitle}>Past Bookings</h2>
             {pastBookings.length === 0 ? (
               <div style={styles.empty}>
-                <div style={{fontSize:'48px'}}>📋</div>
+                <div style={{ fontSize: '48px' }}>📋</div>
                 <h3>No past bookings yet</h3>
               </div>
             ) : (
               pastBookings.map(booking => (
-                <div key={booking.id} style={{...styles.bookingCard, opacity:0.8}}>
+                <div key={booking.id} style={{ ...styles.bookingCard, opacity: 0.8 }}>
                   <div style={styles.bookingHeader}>
                     <div>
                       <h3 style={styles.bookingTitle}>
@@ -412,7 +431,7 @@ if (Array.isArray(bdata)) {
                     </div>
                     <div style={styles.bookingDetail}>
                       <span style={styles.detailLabel}>Total</span>
-                      <span style={{...styles.detailValue, fontWeight:'700'}}>
+                      <span style={{ ...styles.detailValue, fontWeight: '700' }}>
                         ₹{booking.total_price}
                       </span>
                     </div>
@@ -429,47 +448,47 @@ if (Array.isArray(bdata)) {
 }
 
 const styles = {
-  container:      { maxWidth:'1100px', margin:'0 auto', padding:'24px 16px' },
-  center:         { textAlign:'center', padding:'80px', fontSize:'18px', color:'#6b7280' },
-  pageTitle:      { fontSize:'28px', fontWeight:'bold', color:'#111827', margin:'0' },
-  welcome:        { color:'#6b7280', marginTop:'4px', marginBottom:'24px' },
-  statsRow:       { display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:'16px', marginBottom:'24px' },
-  statBox:        { backgroundColor:'white', padding:'20px', borderRadius:'12px', boxShadow:'0 2px 8px rgba(0,0,0,0.08)', textAlign:'center', display:'flex', flexDirection:'column', gap:'4px' },
-  statNumber:     { fontSize:'32px', fontWeight:'bold', color:'#15803d' },
-  statLabel:      { fontSize:'13px', color:'#6b7280', fontWeight:'500' },
-  error:          { backgroundColor:'#fee2e2', color:'#dc2626', padding:'12px', borderRadius:'8px', marginBottom:'16px' },
-  tabs:           { display:'flex', gap:'8px', marginBottom:'24px', flexWrap:'wrap' },
-  tab:            { padding:'10px 20px', borderRadius:'8px', border:'2px solid #e5e7eb', backgroundColor:'white', cursor:'pointer', fontWeight:'600', fontSize:'14px', color:'#6b7280' },
-  activeTab:      { backgroundColor:'#15803d', color:'white', borderColor:'#15803d' },
-  tabContent:     { backgroundColor:'white', borderRadius:'12px', boxShadow:'0 2px 12px rgba(0,0,0,0.08)', padding:'24px' },
-  tabHeader:      { display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'20px' },
-  tabTitle:       { fontSize:'20px', fontWeight:'bold', color:'#111827', margin:'0 0 20px' },
-  addBtn:         { backgroundColor:'#15803d', color:'white', padding:'10px 20px', borderRadius:'8px', textDecoration:'none', fontWeight:'600', fontSize:'14px' },
-  addBtnLarge:    { display:'inline-block', marginTop:'16px', backgroundColor:'#15803d', color:'white', padding:'12px 24px', borderRadius:'8px', textDecoration:'none', fontWeight:'600' },
-  empty:          { textAlign:'center', padding:'40px', color:'#6b7280' },
-  tractorGrid:    { display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(260px, 1fr))', gap:'16px' },
-  tractorCard:    { border:'1px solid #e5e7eb', borderRadius:'12px', overflow:'hidden' },
-  tractorImageBox:{ position:'relative', height:'160px', backgroundColor:'#f3f4f6' },
-  tractorImage:   { width:'100%', height:'100%', objectFit:'cover' },
-  noImage:        { width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'48px' },
-  statusBadge:    { position:'absolute', top:'8px', right:'8px', color:'white', padding:'3px 8px', borderRadius:'12px', fontSize:'11px', fontWeight:'600', textTransform:'capitalize' },
-  tractorInfo:    { padding:'14px' },
-  tractorName:    { fontSize:'16px', fontWeight:'bold', color:'#111827', margin:'0 0 4px' },
-  tractorSpecs:   { fontSize:'13px', color:'#6b7280', margin:'0 0 4px' },
-  tractorPrice:   { fontSize:'15px', fontWeight:'600', color:'#15803d', margin:'0 0 12px' },
-  tractorActions: { display:'flex', gap:'8px' },
-  viewBtn:        { flex:1, backgroundColor:'#f0fdf4', color:'#15803d', padding:'8px', borderRadius:'6px', textAlign:'center', textDecoration:'none', fontWeight:'600', fontSize:'13px' },
-  deleteBtn:      { flex:1, backgroundColor:'#fee2e2', color:'#dc2626', padding:'8px', borderRadius:'6px', border:'none', cursor:'pointer', fontWeight:'600', fontSize:'13px' },
-  bookingCard:    { border:'1px solid #e5e7eb', borderRadius:'12px', padding:'20px', marginBottom:'16px' },
-  bookingHeader:  { display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'16px' },
-  bookingTitle:   { fontSize:'16px', fontWeight:'bold', color:'#111827', margin:'0 0 4px' },
-  bookingFarmer:  { fontSize:'13px', color:'#6b7280', margin:'0' },
-  bookingBadge:   { padding:'4px 12px', borderRadius:'20px', fontSize:'12px', fontWeight:'600', textTransform:'capitalize' },
-  bookingDetails: { display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(180px, 1fr))', gap:'12px', marginBottom:'16px' },
-  bookingDetail:  { display:'flex', flexDirection:'column', gap:'2px' },
-  detailLabel:    { fontSize:'11px', color:'#6b7280', textTransform:'uppercase', fontWeight:'600' },
-  detailValue:    { fontSize:'14px', color:'#111827' },
-  bookingActions: { display:'flex', gap:'8px' },
-  confirmBtn:     { backgroundColor:'#dcfce7', color:'#15803d', padding:'10px 20px', borderRadius:'8px', border:'none', cursor:'pointer', fontWeight:'600', fontSize:'14px' },
-  rejectBtn:      { backgroundColor:'#fee2e2', color:'#dc2626', padding:'10px 20px', borderRadius:'8px', border:'none', cursor:'pointer', fontWeight:'600', fontSize:'14px' },
+  container: { maxWidth: '1100px', margin: '0 auto', padding: '24px 16px' },
+  center: { textAlign: 'center', padding: '80px', fontSize: '18px', color: '#6b7280' },
+  pageTitle: { fontSize: '28px', fontWeight: 'bold', color: '#111827', margin: '0' },
+  welcome: { color: '#6b7280', marginTop: '4px', marginBottom: '24px' },
+  statsRow: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' },
+  statBox: { backgroundColor: 'white', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '4px' },
+  statNumber: { fontSize: '32px', fontWeight: 'bold', color: '#15803d' },
+  statLabel: { fontSize: '13px', color: '#6b7280', fontWeight: '500' },
+  error: { backgroundColor: '#fee2e2', color: '#dc2626', padding: '12px', borderRadius: '8px', marginBottom: '16px' },
+  tabs: { display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' },
+  tab: { padding: '10px 20px', borderRadius: '8px', border: '2px solid #e5e7eb', backgroundColor: 'white', cursor: 'pointer', fontWeight: '600', fontSize: '14px', color: '#6b7280' },
+  activeTab: { backgroundColor: '#15803d', color: 'white', borderColor: '#15803d' },
+  tabContent: { backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 2px 12px rgba(0,0,0,0.08)', padding: '24px' },
+  tabHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' },
+  tabTitle: { fontSize: '20px', fontWeight: 'bold', color: '#111827', margin: '0 0 20px' },
+  addBtn: { backgroundColor: '#15803d', color: 'white', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: '600', fontSize: '14px' },
+  addBtnLarge: { display: 'inline-block', marginTop: '16px', backgroundColor: '#15803d', color: 'white', padding: '12px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: '600' },
+  empty: { textAlign: 'center', padding: '40px', color: '#6b7280' },
+  tractorGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '16px' },
+  tractorCard: { border: '1px solid #e5e7eb', borderRadius: '12px', overflow: 'hidden' },
+  tractorImageBox: { position: 'relative', height: '160px', backgroundColor: '#f3f4f6' },
+  tractorImage: { width: '100%', height: '100%', objectFit: 'cover' },
+  noImage: { width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '48px' },
+  statusBadge: { position: 'absolute', top: '8px', right: '8px', color: 'white', padding: '3px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: '600', textTransform: 'capitalize' },
+  tractorInfo: { padding: '14px' },
+  tractorName: { fontSize: '16px', fontWeight: 'bold', color: '#111827', margin: '0 0 4px' },
+  tractorSpecs: { fontSize: '13px', color: '#6b7280', margin: '0 0 4px' },
+  tractorPrice: { fontSize: '15px', fontWeight: '600', color: '#15803d', margin: '0 0 12px' },
+  tractorActions: { display: 'flex', gap: '8px' },
+  viewBtn: { flex: 1, backgroundColor: '#f0fdf4', color: '#15803d', padding: '8px', borderRadius: '6px', textAlign: 'center', textDecoration: 'none', fontWeight: '600', fontSize: '13px' },
+  deleteBtn: { flex: 1, backgroundColor: '#fee2e2', color: '#dc2626', padding: '8px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: '600', fontSize: '13px' },
+  bookingCard: { border: '1px solid #e5e7eb', borderRadius: '12px', padding: '20px', marginBottom: '16px' },
+  bookingHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' },
+  bookingTitle: { fontSize: '16px', fontWeight: 'bold', color: '#111827', margin: '0 0 4px' },
+  bookingFarmer: { fontSize: '13px', color: '#6b7280', margin: '0' },
+  bookingBadge: { padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '600', textTransform: 'capitalize' },
+  bookingDetails: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px', marginBottom: '16px' },
+  bookingDetail: { display: 'flex', flexDirection: 'column', gap: '2px' },
+  detailLabel: { fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', fontWeight: '600' },
+  detailValue: { fontSize: '14px', color: '#111827' },
+  bookingActions: { display: 'flex', gap: '8px' },
+  confirmBtn: { backgroundColor: '#dcfce7', color: '#15803d', padding: '10px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: '600', fontSize: '14px' },
+  rejectBtn: { backgroundColor: '#fee2e2', color: '#dc2626', padding: '10px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: '600', fontSize: '14px' },
 };

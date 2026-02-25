@@ -2,30 +2,33 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
+import useSlowBackend from '../hooks/useSlowBackend';
+import SlowBackendBanner from '../components/SlowBackendBanner';
 
 export default function BookingPage() {
-  const { id }     = useParams();
-  const { user }   = useAuth();
-  const navigate   = useNavigate();
+  const { id } = useParams();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
-  const [tractor,  setTractor]  = useState(null);
-  const [loading,  setLoading]  = useState(true);
+  const [tractor, setTractor] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [error,    setError]    = useState('');
-  const [success,  setSuccess]  = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
+  const slowWarning = useSlowBackend(loading);
 
   const [formData, setFormData] = useState({
-    start_date:      '',
-    end_date:        '',
-    rent_type:       'hourly',
-    quantity:        1,
+    start_date: '',
+    end_date: '',
+    rent_type: 'hourly',
+    quantity: 1,
     driver_required: false,
-    contact_phone:   '',
-    delivery_address:'',
-    notes:           '',
+    contact_phone: '',
+    delivery_address: '',
+    notes: '',
   });
 
- useEffect(() => {
+  useEffect(() => {
     fetchTractor();
     // eslint-disable-next-line
   }, [id]);
@@ -90,7 +93,10 @@ export default function BookingPage() {
   };
 
   if (loading) return (
-    <div style={styles.center}>Loading...</div>
+    <div style={styles.center}>
+      <SlowBackendBanner show={slowWarning} />
+      Loading...
+    </div>
   );
 
   if (!user) return (
@@ -255,7 +261,7 @@ export default function BookingPage() {
                 onChange={handleChange}
                 placeholder="Village, District, State"
                 rows={3}
-                style={{...styles.input, resize:'vertical'}}
+                style={{ ...styles.input, resize: 'vertical' }}
               />
             </div>
 
@@ -268,7 +274,7 @@ export default function BookingPage() {
                 onChange={handleChange}
                 placeholder="Any specific requirements..."
                 rows={2}
-                style={{...styles.input, resize:'vertical'}}
+                style={{ ...styles.input, resize: 'vertical' }}
               />
             </div>
 
@@ -357,39 +363,39 @@ export default function BookingPage() {
 }
 
 const styles = {
-  container:       { maxWidth:'1100px', margin:'0 auto', padding:'24px 16px' },
-  center:          { textAlign:'center', padding:'80px', fontSize:'18px', color:'#6b7280' },
-  backLink:        { color:'#15803d', textDecoration:'none', fontWeight:'600', fontSize:'15px' },
-  loginBtn:        { display:'inline-block', marginTop:'16px', backgroundColor:'#15803d', color:'white', padding:'10px 20px', borderRadius:'8px', textDecoration:'none' },
-  pageTitle:       { fontSize:'28px', fontWeight:'bold', color:'#111827', margin:'16px 0 24px' },
-  mainGrid:        { display:'grid', gridTemplateColumns:'1.5fr 1fr', gap:'32px' },
-  formSection:     { backgroundColor:'white', padding:'24px', borderRadius:'12px', boxShadow:'0 2px 12px rgba(0,0,0,0.08)' },
-  error:           { backgroundColor:'#fee2e2', color:'#dc2626', padding:'12px', borderRadius:'8px', marginBottom:'16px', fontSize:'14px' },
-  row:             { display:'flex', gap:'12px' },
-  inputGroup:      { flex:1, marginBottom:'16px' },
-  label:           { display:'block', fontSize:'14px', fontWeight:'500', color:'#374151', marginBottom:'6px' },
-  input:           { width:'100%', border:'1px solid #d1d5db', borderRadius:'8px', padding:'10px 14px', fontSize:'15px', outline:'none', boxSizing:'border-box', backgroundColor:'white' },
-  checkboxGroup:   { display:'flex', alignItems:'center', gap:'10px', marginBottom:'16px', padding:'12px', backgroundColor:'#f0fdf4', borderRadius:'8px' },
-  checkbox:        { width:'18px', height:'18px', cursor:'pointer' },
-  checkboxLabel:   { fontSize:'15px', color:'#15803d', fontWeight:'500', cursor:'pointer' },
-  submitBtn:       { width:'100%', backgroundColor:'#15803d', color:'white', padding:'14px', borderRadius:'10px', fontSize:'16px', fontWeight:'600', border:'none', cursor:'pointer', marginTop:'8px' },
-  summarySection:  { display:'flex', flexDirection:'column', gap:'16px' },
-  summaryCard:     { backgroundColor:'white', padding:'20px', borderRadius:'12px', boxShadow:'0 2px 12px rgba(0,0,0,0.08)' },
-  priceCard:       { backgroundColor:'#f0fdf4', padding:'20px', borderRadius:'12px', border:'2px solid #86efac' },
-  summaryTitle:    { fontSize:'16px', fontWeight:'bold', color:'#111827', marginBottom:'16px', marginTop:'0' },
-  summaryItem:     { display:'flex', justifyContent:'space-between', marginBottom:'10px' },
-  summaryLabel:    { color:'#6b7280', fontSize:'14px' },
-  summaryValue:    { fontWeight:'600', color:'#111827', fontSize:'14px' },
-  totalRow:        { display:'flex', justifyContent:'space-between', borderTop:'2px solid #86efac', paddingTop:'12px', marginTop:'8px' },
-  totalLabel:      { fontWeight:'bold', color:'#111827', fontSize:'16px' },
-  totalValue:      { fontWeight:'bold', color:'#15803d', fontSize:'22px' },
-  note:            { fontSize:'12px', color:'#6b7280', marginTop:'8px', marginBottom:'0' },
-  successContainer:{ minHeight:'80vh', display:'flex', alignItems:'center', justifyContent:'center', padding:'24px' },
-  successCard:     { backgroundColor:'white', padding:'48px', borderRadius:'16px', boxShadow:'0 4px 20px rgba(0,0,0,0.1)', textAlign:'center', maxWidth:'480px', width:'100%' },
-  successIcon:     { fontSize:'64px', marginBottom:'16px' },
-  successTitle:    { fontSize:'24px', fontWeight:'bold', color:'#111827', margin:'0 0 12px' },
-  successText:     { color:'#6b7280', lineHeight:'1.6', marginBottom:'24px' },
-  successActions:  { display:'flex', gap:'12px', flexDirection:'column' },
-  viewBookingsBtn: { backgroundColor:'#15803d', color:'white', padding:'14px', borderRadius:'10px', fontSize:'16px', fontWeight:'600', border:'none', cursor:'pointer' },
-  browseBtn:       { backgroundColor:'white', color:'#15803d', padding:'14px', borderRadius:'10px', fontSize:'16px', fontWeight:'600', border:'2px solid #15803d', cursor:'pointer' },
+  container: { maxWidth: '1100px', margin: '0 auto', padding: '24px 16px' },
+  center: { textAlign: 'center', padding: '80px', fontSize: '18px', color: '#6b7280' },
+  backLink: { color: '#15803d', textDecoration: 'none', fontWeight: '600', fontSize: '15px' },
+  loginBtn: { display: 'inline-block', marginTop: '16px', backgroundColor: '#15803d', color: 'white', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none' },
+  pageTitle: { fontSize: '28px', fontWeight: 'bold', color: '#111827', margin: '16px 0 24px' },
+  mainGrid: { display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '32px' },
+  formSection: { backgroundColor: 'white', padding: '24px', borderRadius: '12px', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' },
+  error: { backgroundColor: '#fee2e2', color: '#dc2626', padding: '12px', borderRadius: '8px', marginBottom: '16px', fontSize: '14px' },
+  row: { display: 'flex', gap: '12px' },
+  inputGroup: { flex: 1, marginBottom: '16px' },
+  label: { display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' },
+  input: { width: '100%', border: '1px solid #d1d5db', borderRadius: '8px', padding: '10px 14px', fontSize: '15px', outline: 'none', boxSizing: 'border-box', backgroundColor: 'white' },
+  checkboxGroup: { display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', padding: '12px', backgroundColor: '#f0fdf4', borderRadius: '8px' },
+  checkbox: { width: '18px', height: '18px', cursor: 'pointer' },
+  checkboxLabel: { fontSize: '15px', color: '#15803d', fontWeight: '500', cursor: 'pointer' },
+  submitBtn: { width: '100%', backgroundColor: '#15803d', color: 'white', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: '600', border: 'none', cursor: 'pointer', marginTop: '8px' },
+  summarySection: { display: 'flex', flexDirection: 'column', gap: '16px' },
+  summaryCard: { backgroundColor: 'white', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' },
+  priceCard: { backgroundColor: '#f0fdf4', padding: '20px', borderRadius: '12px', border: '2px solid #86efac' },
+  summaryTitle: { fontSize: '16px', fontWeight: 'bold', color: '#111827', marginBottom: '16px', marginTop: '0' },
+  summaryItem: { display: 'flex', justifyContent: 'space-between', marginBottom: '10px' },
+  summaryLabel: { color: '#6b7280', fontSize: '14px' },
+  summaryValue: { fontWeight: '600', color: '#111827', fontSize: '14px' },
+  totalRow: { display: 'flex', justifyContent: 'space-between', borderTop: '2px solid #86efac', paddingTop: '12px', marginTop: '8px' },
+  totalLabel: { fontWeight: 'bold', color: '#111827', fontSize: '16px' },
+  totalValue: { fontWeight: 'bold', color: '#15803d', fontSize: '22px' },
+  note: { fontSize: '12px', color: '#6b7280', marginTop: '8px', marginBottom: '0' },
+  successContainer: { minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' },
+  successCard: { backgroundColor: 'white', padding: '48px', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', textAlign: 'center', maxWidth: '480px', width: '100%' },
+  successIcon: { fontSize: '64px', marginBottom: '16px' },
+  successTitle: { fontSize: '24px', fontWeight: 'bold', color: '#111827', margin: '0 0 12px' },
+  successText: { color: '#6b7280', lineHeight: '1.6', marginBottom: '24px' },
+  successActions: { display: 'flex', gap: '12px', flexDirection: 'column' },
+  viewBookingsBtn: { backgroundColor: '#15803d', color: 'white', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: '600', border: 'none', cursor: 'pointer' },
+  browseBtn: { backgroundColor: 'white', color: '#15803d', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: '600', border: '2px solid #15803d', cursor: 'pointer' },
 };

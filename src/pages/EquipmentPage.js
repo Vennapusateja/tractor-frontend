@@ -1,25 +1,37 @@
+
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import API from '../api/axios';
+import useSlowBackend from '../hooks/useSlowBackend';
+import SlowBackendBanner from '../components/SlowBackendBanner';
+
+const MEDIA_BASE = (process.env.REACT_APP_API_URL || 'https://tractor-backend-eey5.onrender.com/api').replace('/api', '');
+const TRACTOR_PLACEHOLDERS = [
+  '/images/tractor1.png',
+  '/images/tractor2.png',
+  '/images/tractor3.png',
+];
+const getPlaceholder = (id) => TRACTOR_PLACEHOLDERS[(id || 0) % TRACTOR_PLACEHOLDERS.length];
 
 export default function EquipmentPage() {
   const { user } = useAuth();
 
-  const [equipment,  setEquipment]  = useState([]);
-  const [loading,    setLoading]    = useState(true);
-  const [error,      setError]      = useState('');
-  const [search,     setSearch]     = useState('');
+  const [equipment, setEquipment] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
-  const [showForm,   setShowForm]   = useState(false);
+  const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [success,    setSuccess]    = useState('');
+  const [success, setSuccess] = useState('');
+  const slowWarning = useSlowBackend(loading);
 
   const [formData, setFormData] = useState({
-    name:'', type:'rotavator', brand:'', description:'',
-    rent_price:'', sell_price:'', location:'', state:'', district:'',
+    name: '', type: 'rotavator', brand: '', description: '',
+    rent_price: '', sell_price: '', location: '', state: '', district: '',
   });
 
-  const [images,   setImages]   = useState([]);
+  const [images, setImages] = useState([]);
   const [previews, setPreviews] = useState([]);
 
   useEffect(() => {
@@ -32,13 +44,13 @@ export default function EquipmentPage() {
     try {
       const res = await API.get('/equipment/', { params });
       const data = res.data;
-if (Array.isArray(data)) {
-  setEquipment(data);
-} else if (data.results && Array.isArray(data.results)) {
-  setEquipment(data.results);
-} else {
-  setEquipment([]);
-}
+      if (Array.isArray(data)) {
+        setEquipment(data);
+      } else if (data.results && Array.isArray(data.results)) {
+        setEquipment(data.results);
+      } else {
+        setEquipment([]);
+      }
     } catch {
       setError('Failed to load equipment.');
     } finally {
@@ -86,8 +98,8 @@ if (Array.isArray(data)) {
       setSuccess('Equipment listed successfully!');
       setShowForm(false);
       setFormData({
-        name:'', type:'rotavator', brand:'', description:'',
-        rent_price:'', sell_price:'', location:'', state:'', district:'',
+        name: '', type: 'rotavator', brand: '', description: '',
+        rent_price: '', sell_price: '', location: '', state: '', district: '',
       });
       setImages([]);
       setPreviews([]);
@@ -100,21 +112,21 @@ if (Array.isArray(data)) {
   };
 
   const equipmentTypes = [
-    { value:'',           label:'All Types' },
-    { value:'plow',       label:'🌾 Plow' },
-    { value:'cultivator', label:'🔧 Cultivator' },
-    { value:'seeder',     label:'🌱 Seeder' },
-    { value:'harvester',  label:'🌾 Harvester' },
-    { value:'sprayer',    label:'💧 Sprayer' },
-    { value:'trailer',    label:'🚛 Trailer' },
-    { value:'rotavator',  label:'⚙️ Rotavator' },
-    { value:'other',      label:'📦 Other' },
+    { value: '', label: 'All Types' },
+    { value: 'plow', label: '🌾 Plow' },
+    { value: 'cultivator', label: '🔧 Cultivator' },
+    { value: 'seeder', label: '🌱 Seeder' },
+    { value: 'harvester', label: '🌾 Harvester' },
+    { value: 'sprayer', label: '💧 Sprayer' },
+    { value: 'trailer', label: '🚛 Trailer' },
+    { value: 'rotavator', label: '⚙️ Rotavator' },
+    { value: 'other', label: '📦 Other' },
   ];
 
   const typeEmoji = {
-    plow:'🌾', cultivator:'🔧', seeder:'🌱',
-    harvester:'🌾', sprayer:'💧', trailer:'🚛',
-    rotavator:'⚙️', other:'📦',
+    plow: '🌾', cultivator: '🔧', seeder: '🌱',
+    harvester: '🌾', sprayer: '💧', trailer: '🚛',
+    rotavator: '⚙️', other: '📦',
   };
 
   return (
@@ -133,7 +145,7 @@ if (Array.isArray(data)) {
       </div>
 
       {success && <div style={styles.success}>{success}</div>}
-      {error   && <div style={styles.error}>{error}</div>}
+      {error && <div style={styles.error}>{error}</div>}
 
       {showForm && (
         <div style={styles.formCard}>
@@ -148,10 +160,10 @@ if (Array.isArray(data)) {
                   multiple
                   accept="image/*"
                   onChange={handleImages}
-                  style={{display:'none'}}
+                  style={{ display: 'none' }}
                 />
                 <div style={styles.uploadContent}>
-                  <span style={{fontSize:'28px'}}>📷</span>
+                  <span style={{ fontSize: '28px' }}>📷</span>
                   <span style={styles.uploadText}>Click to upload photos</span>
                 </div>
               </label>
@@ -216,7 +228,7 @@ if (Array.isArray(data)) {
                 onChange={handleChange}
                 placeholder="Condition, size, features..."
                 rows={2}
-                style={{...styles.input, resize:'vertical'}}
+                style={{ ...styles.input, resize: 'vertical' }}
               />
             </div>
 
@@ -311,7 +323,7 @@ if (Array.isArray(data)) {
           ))}
         </select>
         <button onClick={handleSearch} style={styles.searchBtn}>Search</button>
-        <button onClick={handleReset}  style={styles.resetBtn}>Reset</button>
+        <button onClick={handleReset} style={styles.resetBtn}>Reset</button>
       </div>
 
       {!loading && (
@@ -320,11 +332,12 @@ if (Array.isArray(data)) {
         </p>
       )}
 
+      <SlowBackendBanner show={slowWarning} />
       {loading && <div style={styles.loading}>Loading equipment...</div>}
 
       {!loading && equipment.length === 0 && (
         <div style={styles.empty}>
-          <div style={{fontSize:'64px'}}>🔧</div>
+          <img src="/images/tractor3.png" alt="No equipment" style={{ width: '160px', borderRadius: '12px', marginBottom: '12px', opacity: 0.7 }} />
           <h3>No equipment found</h3>
           <p>Be the first to list your equipment!</p>
         </div>
@@ -337,14 +350,16 @@ if (Array.isArray(data)) {
             <div style={styles.imageBox}>
               {item.images && item.images.length > 0 ? (
                 <img
-                  src={`http://127.0.0.1:8000${item.images[0].image}`}
+                  src={`${MEDIA_BASE}${item.images[0].image}`}
                   alt={item.name}
                   style={styles.image}
                 />
               ) : (
-                <div style={styles.noImage}>
-                  {typeEmoji[item.type] || '🔧'}
-                </div>
+                <img
+                  src={getPlaceholder(item.id)}
+                  alt={item.name || 'Equipment'}
+                  style={styles.image}
+                />
               )}
               <span style={styles.typeBadge}>
                 {typeEmoji[item.type]} {item.type}
@@ -386,50 +401,50 @@ if (Array.isArray(data)) {
 }
 
 const styles = {
-  container:    { maxWidth:'1200px', margin:'0 auto', padding:'24px 16px' },
-  header:       { display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'24px', flexWrap:'wrap', gap:'12px' },
-  title:        { fontSize:'32px', fontWeight:'bold', color:'#111827', margin:'0' },
-  subtitle:     { color:'#6b7280', marginTop:'4px' },
-  listBtn:      { backgroundColor:'#15803d', color:'white', padding:'10px 20px', borderRadius:'8px', border:'none', cursor:'pointer', fontWeight:'600', fontSize:'15px' },
-  success:      { backgroundColor:'#dcfce7', color:'#15803d', padding:'12px 16px', borderRadius:'8px', marginBottom:'16px', fontWeight:'500' },
-  error:        { backgroundColor:'#fee2e2', color:'#dc2626', padding:'12px 16px', borderRadius:'8px', marginBottom:'16px' },
-  formCard:     { backgroundColor:'white', borderRadius:'16px', boxShadow:'0 2px 12px rgba(0,0,0,0.08)', padding:'24px', marginBottom:'24px' },
-  formTitle:    { fontSize:'18px', fontWeight:'bold', color:'#111827', marginBottom:'20px', marginTop:'0' },
-  formRow:      { display:'flex', gap:'12px', flexWrap:'wrap' },
-  inputGroup:   { flex:1, marginBottom:'14px', minWidth:'150px' },
-  label:        { display:'block', fontSize:'14px', fontWeight:'500', color:'#374151', marginBottom:'6px' },
-  input:        { width:'100%', border:'1px solid #d1d5db', borderRadius:'8px', padding:'10px 14px', fontSize:'15px', outline:'none', boxSizing:'border-box', backgroundColor:'white' },
-  uploadBox:    { display:'block', border:'2px dashed #d1d5db', borderRadius:'10px', padding:'20px', textAlign:'center', cursor:'pointer', backgroundColor:'#f9fafb', marginBottom:'12px' },
-  uploadContent:{ display:'flex', flexDirection:'column', alignItems:'center', gap:'6px' },
-  uploadText:   { fontSize:'14px', fontWeight:'600', color:'#374151' },
-  previewGrid:  { display:'flex', gap:'8px', flexWrap:'wrap' },
-  previewItem:  { position:'relative', width:'72px', height:'72px', borderRadius:'8px', overflow:'hidden' },
-  previewImage: { width:'100%', height:'100%', objectFit:'cover' },
-  removeBtn:    { position:'absolute', top:'2px', right:'2px', backgroundColor:'rgba(0,0,0,0.6)', color:'white', border:'none', borderRadius:'50%', width:'18px', height:'18px', cursor:'pointer', fontSize:'10px' },
-  submitBtn:    { width:'100%', backgroundColor:'#15803d', color:'white', padding:'12px', borderRadius:'8px', border:'none', cursor:'pointer', fontWeight:'600', fontSize:'16px', marginTop:'8px' },
-  searchBox:    { display:'flex', gap:'8px', marginBottom:'16px', flexWrap:'wrap' },
-  searchInput:  { flex:2, padding:'12px 16px', borderRadius:'8px', border:'1px solid #d1d5db', fontSize:'15px', minWidth:'180px' },
-  typeSelect:   { flex:1, padding:'12px 16px', borderRadius:'8px', border:'1px solid #d1d5db', fontSize:'15px', minWidth:'140px', backgroundColor:'white' },
-  searchBtn:    { backgroundColor:'#15803d', color:'white', padding:'12px 24px', borderRadius:'8px', border:'none', cursor:'pointer', fontWeight:'600' },
-  resetBtn:     { backgroundColor:'#6b7280', color:'white', padding:'12px 24px', borderRadius:'8px', border:'none', cursor:'pointer' },
-  count:        { color:'#6b7280', marginBottom:'16px' },
-  loading:      { textAlign:'center', padding:'60px', fontSize:'18px', color:'#6b7280' },
-  empty:        { textAlign:'center', padding:'60px', color:'#6b7280' },
-  grid:         { display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(280px, 1fr))', gap:'20px' },
-  card:         { backgroundColor:'white', borderRadius:'12px', boxShadow:'0 2px 10px rgba(0,0,0,0.08)', overflow:'hidden' },
-  imageBox:     { position:'relative', height:'180px', backgroundColor:'#f3f4f6' },
-  image:        { width:'100%', height:'100%', objectFit:'cover' },
-  noImage:      { width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'56px' },
-  typeBadge:    { position:'absolute', top:'10px', left:'10px', backgroundColor:'rgba(0,0,0,0.6)', color:'white', padding:'3px 8px', borderRadius:'12px', fontSize:'11px', fontWeight:'600', textTransform:'capitalize' },
-  cardInfo:     { padding:'16px' },
-  itemName:     { fontSize:'17px', fontWeight:'bold', color:'#111827', margin:'0 0 4px' },
-  brand:        { fontSize:'13px', color:'#6b7280', margin:'0 0 4px' },
-  location:     { fontSize:'13px', color:'#6b7280', margin:'0 0 8px' },
-  description:  { fontSize:'13px', color:'#4b5563', margin:'0 0 10px', lineHeight:'1.5' },
-  pricing:      { display:'flex', gap:'8px', flexWrap:'wrap', marginBottom:'12px' },
-  rentPrice:    { backgroundColor:'#dcfce7', color:'#15803d', padding:'4px 10px', borderRadius:'6px', fontSize:'13px', fontWeight:'600' },
-  sellPrice:    { backgroundColor:'#fef3c7', color:'#d97706', padding:'4px 10px', borderRadius:'6px', fontSize:'13px', fontWeight:'600' },
-  ownerRow:     { display:'flex', justifyContent:'space-between', alignItems:'center' },
-  ownerName:    { fontSize:'13px', color:'#374151', fontWeight:'500' },
-  callBtn:      { backgroundColor:'#2563eb', color:'white', padding:'6px 14px', borderRadius:'6px', textDecoration:'none', fontSize:'13px', fontWeight:'600' },
+  container: { maxWidth: '1200px', margin: '0 auto', padding: '24px 16px' },
+  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' },
+  title: { fontSize: '32px', fontWeight: 'bold', color: '#111827', margin: '0' },
+  subtitle: { color: '#6b7280', marginTop: '4px' },
+  listBtn: { backgroundColor: '#15803d', color: 'white', padding: '10px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: '600', fontSize: '15px' },
+  success: { backgroundColor: '#dcfce7', color: '#15803d', padding: '12px 16px', borderRadius: '8px', marginBottom: '16px', fontWeight: '500' },
+  error: { backgroundColor: '#fee2e2', color: '#dc2626', padding: '12px 16px', borderRadius: '8px', marginBottom: '16px' },
+  formCard: { backgroundColor: 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.08)', padding: '24px', marginBottom: '24px' },
+  formTitle: { fontSize: '18px', fontWeight: 'bold', color: '#111827', marginBottom: '20px', marginTop: '0' },
+  formRow: { display: 'flex', gap: '12px', flexWrap: 'wrap' },
+  inputGroup: { flex: 1, marginBottom: '14px', minWidth: '150px' },
+  label: { display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' },
+  input: { width: '100%', border: '1px solid #d1d5db', borderRadius: '8px', padding: '10px 14px', fontSize: '15px', outline: 'none', boxSizing: 'border-box', backgroundColor: 'white' },
+  uploadBox: { display: 'block', border: '2px dashed #d1d5db', borderRadius: '10px', padding: '20px', textAlign: 'center', cursor: 'pointer', backgroundColor: '#f9fafb', marginBottom: '12px' },
+  uploadContent: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' },
+  uploadText: { fontSize: '14px', fontWeight: '600', color: '#374151' },
+  previewGrid: { display: 'flex', gap: '8px', flexWrap: 'wrap' },
+  previewItem: { position: 'relative', width: '72px', height: '72px', borderRadius: '8px', overflow: 'hidden' },
+  previewImage: { width: '100%', height: '100%', objectFit: 'cover' },
+  removeBtn: { position: 'absolute', top: '2px', right: '2px', backgroundColor: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '50%', width: '18px', height: '18px', cursor: 'pointer', fontSize: '10px' },
+  submitBtn: { width: '100%', backgroundColor: '#15803d', color: 'white', padding: '12px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: '600', fontSize: '16px', marginTop: '8px' },
+  searchBox: { display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' },
+  searchInput: { flex: 2, padding: '12px 16px', borderRadius: '8px', border: '1px solid #d1d5db', fontSize: '15px', minWidth: '180px' },
+  typeSelect: { flex: 1, padding: '12px 16px', borderRadius: '8px', border: '1px solid #d1d5db', fontSize: '15px', minWidth: '140px', backgroundColor: 'white' },
+  searchBtn: { backgroundColor: '#15803d', color: 'white', padding: '12px 24px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: '600' },
+  resetBtn: { backgroundColor: '#6b7280', color: 'white', padding: '12px 24px', borderRadius: '8px', border: 'none', cursor: 'pointer' },
+  count: { color: '#6b7280', marginBottom: '16px' },
+  loading: { textAlign: 'center', padding: '60px', fontSize: '18px', color: '#6b7280' },
+  empty: { textAlign: 'center', padding: '60px', color: '#6b7280' },
+  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' },
+  card: { backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.08)', overflow: 'hidden' },
+  imageBox: { position: 'relative', height: '180px', backgroundColor: '#f3f4f6' },
+  image: { width: '100%', height: '100%', objectFit: 'cover' },
+  noImage: { width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '56px' },
+  typeBadge: { position: 'absolute', top: '10px', left: '10px', backgroundColor: 'rgba(0,0,0,0.6)', color: 'white', padding: '3px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: '600', textTransform: 'capitalize' },
+  cardInfo: { padding: '16px' },
+  itemName: { fontSize: '17px', fontWeight: 'bold', color: '#111827', margin: '0 0 4px' },
+  brand: { fontSize: '13px', color: '#6b7280', margin: '0 0 4px' },
+  location: { fontSize: '13px', color: '#6b7280', margin: '0 0 8px' },
+  description: { fontSize: '13px', color: '#4b5563', margin: '0 0 10px', lineHeight: '1.5' },
+  pricing: { display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '12px' },
+  rentPrice: { backgroundColor: '#dcfce7', color: '#15803d', padding: '4px 10px', borderRadius: '6px', fontSize: '13px', fontWeight: '600' },
+  sellPrice: { backgroundColor: '#fef3c7', color: '#d97706', padding: '4px 10px', borderRadius: '6px', fontSize: '13px', fontWeight: '600' },
+  ownerRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+  ownerName: { fontSize: '13px', color: '#374151', fontWeight: '500' },
+  callBtn: { backgroundColor: '#2563eb', color: 'white', padding: '6px 14px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: '600' },
 };

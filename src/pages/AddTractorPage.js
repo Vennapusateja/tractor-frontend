@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import API from '../api/axios';
@@ -6,28 +7,28 @@ export default function AddTractorPage() {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    brand:               '',
-    model_name:          '',
-    hp:                  '',
-    year:                '',
-    fuel_type:           'diesel',
-    description:         '',
+    brand: '',
+    model_name: '',
+    hp: '',
+    year: '',
+    fuel_type: 'diesel',
+    description: '',
     rent_price_per_hour: '',
     rent_price_per_acre: '',
-    sell_price:          '',
-    driver_available:    false,
-    driver_charges:      '',
-    location:            '',
-    state:               '',
-    district:            '',
-    pincode:             '',
+    sell_price: '',
+    driver_available: false,
+    driver_charges: '',
+    location: '',
+    state: '',
+    district: '',
+    pincode: '',
   });
 
-  const [images,   setImages]   = useState([]);
+  const [images, setImages] = useState([]);
   const [previews, setPreviews] = useState([]);
-  const [loading,  setLoading]  = useState(false);
-  const [error,    setError]    = useState('');
-  const [success,  setSuccess]  = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
 
   const handleChange = (e) => {
     const value = e.target.type === 'checkbox'
@@ -54,7 +55,7 @@ export default function AddTractorPage() {
   };
 
   const removeImage = (index) => {
-    const newImages   = images.filter((_, i) => i !== index);
+    const newImages = images.filter((_, i) => i !== index);
     const newPreviews = previews.filter((_, i) => i !== index);
     setImages(newImages);
     setPreviews(newPreviews);
@@ -120,12 +121,12 @@ export default function AddTractorPage() {
               setImages([]);
               setPreviews([]);
               setFormData({
-                brand:'', model_name:'', hp:'', year:'',
-                fuel_type:'diesel', description:'',
-                rent_price_per_hour:'', rent_price_per_acre:'',
-                sell_price:'', driver_available:false,
-                driver_charges:'', location:'', state:'',
-                district:'', pincode:'',
+                brand: '', model_name: '', hp: '', year: '',
+                fuel_type: 'diesel', description: '',
+                rent_price_per_hour: '', rent_price_per_acre: '',
+                sell_price: '', driver_available: false,
+                driver_charges: '', location: '', state: '',
+                district: '', pincode: '',
               });
             }}
             style={styles.addAnotherBtn}
@@ -168,7 +169,7 @@ export default function AddTractorPage() {
                 multiple
                 accept="image/*"
                 onChange={handleImages}
-                style={{ display:'none' }}
+                style={{ display: 'none' }}
               />
               <div style={styles.uploadContent}>
                 <span style={styles.uploadIcon}>📷</span>
@@ -259,7 +260,7 @@ export default function AddTractorPage() {
                   placeholder="2020"
                   required
                   min="1990"
-                  max="2025"
+                  max={new Date().getFullYear()}
                   style={styles.input}
                 />
               </div>
@@ -286,7 +287,7 @@ export default function AddTractorPage() {
                 onChange={handleChange}
                 placeholder="Describe your tractor condition, features, attachments..."
                 rows={3}
-                style={{...styles.input, resize:'vertical'}}
+                style={{ ...styles.input, resize: 'vertical' }}
               />
             </div>
           </div>
@@ -429,38 +430,38 @@ export default function AddTractorPage() {
 }
 
 const styles = {
-  container:       { maxWidth:'800px', margin:'0 auto', padding:'24px 16px' },
-  backLink:        { color:'#15803d', textDecoration:'none', fontWeight:'600', fontSize:'15px' },
-  pageTitle:       { fontSize:'28px', fontWeight:'bold', color:'#111827', margin:'16px 0 24px' },
-  formCard:        { backgroundColor:'white', borderRadius:'16px', boxShadow:'0 2px 12px rgba(0,0,0,0.08)', padding:'32px' },
-  error:           { backgroundColor:'#fee2e2', color:'#dc2626', padding:'12px', borderRadius:'8px', marginBottom:'20px', fontSize:'14px' },
-  section:         { marginBottom:'32px', paddingBottom:'32px', borderBottom:'1px solid #f3f4f6' },
-  sectionTitle:    { fontSize:'18px', fontWeight:'bold', color:'#111827', marginBottom:'4px', marginTop:'0' },
-  sectionNote:     { fontSize:'13px', color:'#6b7280', marginBottom:'16px', marginTop:'0' },
-  uploadBox:       { display:'block', border:'2px dashed #d1d5db', borderRadius:'12px', padding:'32px', textAlign:'center', cursor:'pointer', backgroundColor:'#f9fafb', marginBottom:'16px' },
-  uploadContent:   { display:'flex', flexDirection:'column', alignItems:'center', gap:'8px' },
-  uploadIcon:      { fontSize:'40px' },
-  uploadText:      { fontSize:'16px', fontWeight:'600', color:'#374151' },
-  uploadHint:      { fontSize:'13px', color:'#6b7280' },
-  previewGrid:     { display:'grid', gridTemplateColumns:'repeat(5, 1fr)', gap:'10px' },
-  previewItem:     { position:'relative', borderRadius:'8px', overflow:'hidden', aspectRatio:'1' },
-  previewImage:    { width:'100%', height:'100%', objectFit:'cover' },
-  coverBadge:      { position:'absolute', bottom:'4px', left:'4px', backgroundColor:'#15803d', color:'white', fontSize:'10px', fontWeight:'700', padding:'2px 6px', borderRadius:'4px' },
-  removeBtn:       { position:'absolute', top:'4px', right:'4px', backgroundColor:'rgba(0,0,0,0.6)', color:'white', border:'none', borderRadius:'50%', width:'22px', height:'22px', cursor:'pointer', fontSize:'11px', display:'flex', alignItems:'center', justifyContent:'center' },
-  row:             { display:'flex', gap:'12px' },
-  inputGroup:      { flex:1, marginBottom:'16px' },
-  label:           { display:'block', fontSize:'14px', fontWeight:'500', color:'#374151', marginBottom:'6px' },
-  input:           { width:'100%', border:'1px solid #d1d5db', borderRadius:'8px', padding:'10px 14px', fontSize:'15px', outline:'none', boxSizing:'border-box', backgroundColor:'white' },
-  checkboxGroup:   { display:'flex', alignItems:'center', gap:'10px', marginBottom:'16px', padding:'12px', backgroundColor:'#f0fdf4', borderRadius:'8px' },
-  checkbox:        { width:'18px', height:'18px', cursor:'pointer' },
-  checkboxLabel:   { fontSize:'15px', color:'#15803d', fontWeight:'500', cursor:'pointer' },
-  submitBtn:       { width:'100%', backgroundColor:'#15803d', color:'white', padding:'16px', borderRadius:'10px', fontSize:'18px', fontWeight:'600', border:'none', cursor:'pointer' },
-  successContainer:{ minHeight:'80vh', display:'flex', alignItems:'center', justifyContent:'center', padding:'24px' },
-  successCard:     { backgroundColor:'white', padding:'48px', borderRadius:'16px', boxShadow:'0 4px 20px rgba(0,0,0,0.1)', textAlign:'center', maxWidth:'480px', width:'100%' },
-  successIcon:     { fontSize:'64px', marginBottom:'16px' },
-  successTitle:    { fontSize:'24px', fontWeight:'bold', color:'#111827', margin:'0 0 12px' },
-  successText:     { color:'#6b7280', lineHeight:'1.6', marginBottom:'24px' },
-  successActions:  { display:'flex', gap:'12px', flexDirection:'column' },
-  dashboardBtn:    { backgroundColor:'#15803d', color:'white', padding:'14px', borderRadius:'10px', fontSize:'16px', fontWeight:'600', border:'none', cursor:'pointer' },
-  addAnotherBtn:   { backgroundColor:'white', color:'#15803d', padding:'14px', borderRadius:'10px', fontSize:'16px', fontWeight:'600', border:'2px solid #15803d', cursor:'pointer' },
+  container: { maxWidth: '800px', margin: '0 auto', padding: '24px 16px' },
+  backLink: { color: '#15803d', textDecoration: 'none', fontWeight: '600', fontSize: '15px' },
+  pageTitle: { fontSize: '28px', fontWeight: 'bold', color: '#111827', margin: '16px 0 24px' },
+  formCard: { backgroundColor: 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.08)', padding: '32px' },
+  error: { backgroundColor: '#fee2e2', color: '#dc2626', padding: '12px', borderRadius: '8px', marginBottom: '20px', fontSize: '14px' },
+  section: { marginBottom: '32px', paddingBottom: '32px', borderBottom: '1px solid #f3f4f6' },
+  sectionTitle: { fontSize: '18px', fontWeight: 'bold', color: '#111827', marginBottom: '4px', marginTop: '0' },
+  sectionNote: { fontSize: '13px', color: '#6b7280', marginBottom: '16px', marginTop: '0' },
+  uploadBox: { display: 'block', border: '2px dashed #d1d5db', borderRadius: '12px', padding: '32px', textAlign: 'center', cursor: 'pointer', backgroundColor: '#f9fafb', marginBottom: '16px' },
+  uploadContent: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' },
+  uploadIcon: { fontSize: '40px' },
+  uploadText: { fontSize: '16px', fontWeight: '600', color: '#374151' },
+  uploadHint: { fontSize: '13px', color: '#6b7280' },
+  previewGrid: { display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' },
+  previewItem: { position: 'relative', borderRadius: '8px', overflow: 'hidden', aspectRatio: '1' },
+  previewImage: { width: '100%', height: '100%', objectFit: 'cover' },
+  coverBadge: { position: 'absolute', bottom: '4px', left: '4px', backgroundColor: '#15803d', color: 'white', fontSize: '10px', fontWeight: '700', padding: '2px 6px', borderRadius: '4px' },
+  removeBtn: { position: 'absolute', top: '4px', right: '4px', backgroundColor: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '50%', width: '22px', height: '22px', cursor: 'pointer', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  row: { display: 'flex', gap: '12px' },
+  inputGroup: { flex: 1, marginBottom: '16px' },
+  label: { display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' },
+  input: { width: '100%', border: '1px solid #d1d5db', borderRadius: '8px', padding: '10px 14px', fontSize: '15px', outline: 'none', boxSizing: 'border-box', backgroundColor: 'white' },
+  checkboxGroup: { display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', padding: '12px', backgroundColor: '#f0fdf4', borderRadius: '8px' },
+  checkbox: { width: '18px', height: '18px', cursor: 'pointer' },
+  checkboxLabel: { fontSize: '15px', color: '#15803d', fontWeight: '500', cursor: 'pointer' },
+  submitBtn: { width: '100%', backgroundColor: '#15803d', color: 'white', padding: '16px', borderRadius: '10px', fontSize: '18px', fontWeight: '600', border: 'none', cursor: 'pointer' },
+  successContainer: { minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' },
+  successCard: { backgroundColor: 'white', padding: '48px', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', textAlign: 'center', maxWidth: '480px', width: '100%' },
+  successIcon: { fontSize: '64px', marginBottom: '16px' },
+  successTitle: { fontSize: '24px', fontWeight: 'bold', color: '#111827', margin: '0 0 12px' },
+  successText: { color: '#6b7280', lineHeight: '1.6', marginBottom: '24px' },
+  successActions: { display: 'flex', gap: '12px', flexDirection: 'column' },
+  dashboardBtn: { backgroundColor: '#15803d', color: 'white', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: '600', border: 'none', cursor: 'pointer' },
+  addAnotherBtn: { backgroundColor: 'white', color: '#15803d', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: '600', border: '2px solid #15803d', cursor: 'pointer' },
 };

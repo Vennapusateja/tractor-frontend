@@ -8,11 +8,14 @@ import TractorsPage from './pages/TractorsPage';
 import BuyTractorsPage from './pages/BuyTractorsPage';
 import TractorDetail from './pages/TractorDetail';
 import BookingPage from './pages/BookingPage';
-import BookingsListPage from './pages/BookingsListPage';
+import BookingsPage from './pages/BookingsPage';
 import ProfilePage from './pages/ProfilePage';
 import DashboardPage from './pages/DashboardPage';
 import AddTractorPage from './pages/AddTractorPage';
 import EquipmentPage from './pages/EquipmentPage';
+import HomePage from './pages/HomePage';
+import ReviewsPage from './pages/ReviewsPage';
+import NotificationsPage from './pages/NotificationsPage';
 
 function App() {
   return (
@@ -21,17 +24,19 @@ function App() {
         <Navbar />
         <Routes>
           {/* Public routes */}
-          <Route path="/" element={<TractorsPage />} />
+          <Route path="/" element={<HomePage />} />
           <Route path="/tractors" element={<TractorsPage />} />
           <Route path="/buy-tractors" element={<BuyTractorsPage />} />
           <Route path="/tractors/:id" element={<TractorDetail />} />
+          <Route path="/tractors/:id/reviews" element={<ReviewsPage />} />
           <Route path="/equipment" element={<EquipmentPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
           {/* Protected routes */}
           <Route path="/book/:id" element={<PrivateRoute><BookingPage /></PrivateRoute>} />
-          <Route path="/bookings" element={<PrivateRoute><BookingsListPage /></PrivateRoute>} />
+          <Route path="/bookings" element={<PrivateRoute><BookingsPage /></PrivateRoute>} />
+          <Route path="/notifications" element={<PrivateRoute><NotificationsPage /></PrivateRoute>} />
           <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
           <Route path="/dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
           <Route path="/add-tractor" element={<PrivateRoute><AddTractorPage /></PrivateRoute>} />
